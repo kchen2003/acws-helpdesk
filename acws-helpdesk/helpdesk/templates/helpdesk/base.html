@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Helpdesk</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    /* Page-level dark mode colors */
+    body.dark-mode { background-color: #0f1113; color: #e6eef3; }
+    .navbar.dark-mode { background-color: #111316 !important; }
+    .navbar.dark-mode .nav-link, .navbar.dark-mode .navbar-brand { color: #e6eef3 !important; }
+    .btn-darkmode { cursor: pointer; color: inherit; border: none; background: none; font-size: 1.1rem; }
+    .btn-darkmode:focus { outline: none; }
+
+    /* Form controls */
+    body.dark-mode .form-control,
+    body.dark-mode input,
+    body.dark-mode textarea,
+    body.dark-mode select {
+      background-color: #16181a;
+      color: #e6eef3;
+      border: 1px solid #2f3336;
+      box-shadow: none;
+    }
+    body.dark-mode .form-control::placeholder,
+    body.dark-mode input::placeholder,
+    body.dark-mode textarea::placeholder {
+      color: #9aa4ab;
+      opacity: 1;
+    }
+
+    /* Buttons */
+    body.dark-mode .btn {
+      border-color: #2f3336;
+      background-image: none;
+      color: #e6eef3;
+    }
+    body.dark-mode .btn.btn-primary {
+      background-color: #2563eb;
+      border-color: #1e4db7;
+      color: #fff;
+    }
+
+    /* Tables and lists */
+    body.dark-mode table,
+    body.dark-mode .table {
+      color: #e6eef3;
+    }
+    body.dark-mode .table thead th {
+      border-bottom: 1px solid #2f3336;
+    }
+
+    /* Badges and highlights */
+    body.dark-mode .badge {
+      background-color: #24303a;
+      color: #e6eef3;
+    }
+
+    /* Alerts */
+    body.dark-mode .alert {
+      background-color: #16181a;
+      border-color: #2f3336;
+      color: #e6eef3;
+    }
+
+    /* Cards, panels */
+    body.dark-mode .card,
+    body.dark-mode .panel {
+      background-color: #0f1113;
+      border-color: #1f2326;
+      color: #e6eef3;
+    }
+
+    /* Ensure links remain readable */
+    body.dark-mode a { color: #8ab4ff; }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'helpdesk:ticket_list' %}"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+  {% block navbar_content %}
+  <ul class="navbar-nav mr-auto">
+    <li class="nav-item"><a class="nav-link" href="{% url 'helpdesk:ticket_create' %}">New Ticket</a></li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="statusMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Status</a>
+      <div class="dropdown-menu" aria-labelledby="statusMenu">
+        <a class="dropdown-item" href="{% url 'helpdesk:ticket_list' %}">All</a>
+        {% for code,label in ticket_statuses %}
+          <a class="dropdown-item" href="{% url 'helpdesk:ticket_list' %}?status={{ code }}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'helpdesk:member_list' %}">Team</a></li>
+    <!-- (Removed inline status button fallback to avoid layout conflicts; dropdown below is primary) -->
+  </ul>
+  {% endblock %}
+  <!-- Right-side: login/logout only (search removed) -->
+  <ul class="navbar-nav ml-auto">
+    {% if user.is_authenticated %}
+      <li class="nav-item">
+        <form method="post" action="{% url 'logout' %}" class="form-inline" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link nav-link" title="Logout/{{ user.username }}" aria-label="Logout {{ user.username }}">🔐</button>
+        </form>
+      </li>
+    {% else %}
+      {% url 'login' as login_url %}
+      {% if request.path != login_url %}
+        <li class="nav-item"><a class="nav-link" href="{{ login_url }}?next={{ request.path }}" title="Login" aria-label="Login">Login</a></li>
+      {% else %}
+        <li class="nav-item">
+          <button id="dark-mode-toggle" class="btn btn-link nav-link btn-darkmode" title="Toggle dark mode" aria-label="Toggle dark mode">
+            <!-- default icon filled by JS -->
+          </button>
+        </li>
+      {% endif %}
+    {% endif %}
+  </ul>
+  </div>
+</nav>
+<div class="container mt-3">
+  {% if messages %}{% for m in messages %}<div class="alert alert-{{ m.tags }}">{{ m }}</div>{% endfor %}{% endif %}
+  {% block content %}{% endblock %}
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Dark mode toggle: persists to localStorage and toggles navbar/body classes
+  (function(){
+    try{
+      var toggle = document.getElementById('dark-mode-toggle');
+      var moonSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>';
+      var sunSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>';
+      function applyDarkMode(enabled){
+        if(enabled){
+          document.body.classList.add('dark-mode');
+          var nav = document.querySelector('.navbar'); if(nav) nav.classList.add('dark-mode');
+          if(toggle) toggle.innerHTML = sunSvg;
+        } else {
+          document.body.classList.remove('dark-mode');
+          var nav = document.querySelector('.navbar'); if(nav) nav.classList.remove('dark-mode');
+          if(toggle) toggle.innerHTML = moonSvg;
+        }
+      }
+      var stored = localStorage.getItem('darkMode');
+      var enabled = stored === '1' ? true : false;
+      applyDarkMode(enabled);
+      if(toggle){
+        toggle.addEventListener('click', function(){
+          enabled = !enabled;
+          localStorage.setItem('darkMode', enabled ? '1' : '0');
+          applyDarkMode(enabled);
+        });
+      }
+    }catch(e){ console.error('dark-mode init error', e); }
+  })();
+
+  // Fallback: simple vanilla JS toggle for dropdowns so Status works
+  // even if Bootstrap JS or jQuery are unavailable or blocked.
+  (function(){
+    try{
+      document.addEventListener('click', function(ev){
+        var toggle = ev.target.closest && ev.target.closest('.dropdown-toggle');
+        if(toggle){
+          ev.preventDefault();
+          var parent = toggle.parentElement;
+          var menu = parent.querySelector('.dropdown-menu');
+          var isOpen = parent.classList.contains('show');
+          // close any other open dropdowns
+          document.querySelectorAll('.navbar .dropdown.show').forEach(function(d){
+            if(d !== parent){ d.classList.remove('show'); var m = d.querySelector('.dropdown-menu'); if(m) m.classList.remove('show'); }
+          });
+          if(!isOpen){ parent.classList.add('show'); if(menu) menu.classList.add('show'); }
+          else { parent.classList.remove('show'); if(menu) menu.classList.remove('show'); }
+        } else {
+          // clicked outside a toggle: close any open dropdowns
+          if(!ev.target.closest || !ev.target.closest('.dropdown')){
+            document.querySelectorAll('.navbar .dropdown.show').forEach(function(d){ d.classList.remove('show'); var m = d.querySelector('.dropdown-menu'); if(m) m.classList.remove('show'); });
+          }
+        }
+      }, false);
+    }catch(e){ console.error('vanilla dropdown fallback error', e); }
+  })();
+</script>
+<script>
+  // Debugging: log click targets to help diagnose broken buttons
+  (function(){
+    document.addEventListener('click', function(ev){
+      try{
+        var t = ev.target;
+        var tag = t.tagName;
+        var cls = t.className || '';
+        var closest = (t.closest && t.closest('a,button')) ? t.closest('a,button') : null;
+        console.log('DEBUG_CLICK:', {tag: tag, class: cls, closest: closest, defaultPrevented: ev.defaultPrevented});
+      }catch(e){console.error('click-logger error', e)}
+    }, true);
+  })();
+</script>
+</body>
+</html>

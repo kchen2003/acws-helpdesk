@@ -1,0 +1,5 @@
+{% extends "helpdesk/base.html" %}
+{% block content %}
+<h2>Search results for "{{ q }}"</h2>
+{% include "helpdesk/ticket_list.html" with object_list=tickets %}
+{% endblock %}

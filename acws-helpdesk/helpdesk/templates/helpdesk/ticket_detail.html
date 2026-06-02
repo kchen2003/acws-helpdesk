@@ -1,0 +1,30 @@
+{% extends "helpdesk/base.html" %}
+{% block content %}
+<h2>
+  {{ object.title }}
+  {% if object.release_version %}
+    <small class="text-muted"> <span class="badge badge-secondary">v{{ object.release_version }}</span></small>
+  {% endif %}
+</h2>
+<p><strong>Status:</strong> {{ object.get_status_display }}</p>
+<p><strong>Submitted by:</strong> {{ object.submitter_name }} — {{ object.contact_info }}</p>
+<p>{{ object.description }}</p>
+
+<h4>Updates</h4>
+<ul>
+{% for u in object.updates.all %}
+  <li>{{ u.created_at }} — <strong>{% if u.author %}{{ u.author.get_full_name|default:u.author.username }}{% else %}System{% endif %}</strong>: {{ u.note }} {% if u.status_after %} (Status → {{ u.get_status_after_display }}){% endif %}</li>
+{% empty %}
+  <li>No updates yet</li>
+{% endfor %}
+</ul>
+
+{% if request.user.is_authenticated %}
+  <a class="btn btn-primary" href="{% url 'helpdesk:ticket_add_update' object.pk %}">Add Update</a>
+  {% if request.user.teammember.is_manager %}
+    <a class="btn btn-secondary" href="{% url 'helpdesk:ticket_assign' object.pk %}">Assign</a>
+  {% endif %}
+{% else %}
+  <a class="btn btn-primary" href="/admin/login/?next={{ request.path }}">Login to add update</a>
+{% endif %}
+{% endblock %}

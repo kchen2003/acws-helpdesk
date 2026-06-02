@@ -1,0 +1,126 @@
+﻿<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Helpdesk</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <a class="navbar-brand" href="/">Helpdesk</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+  <ul class="navbar-nav mr-auto">
+    <li class="nav-item"><a class="nav-link" href="/tickets/create/">New Ticket</a></li>
+    <li class="nav-item"><a class="nav-link" href="/members/">Team</a></li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="statusMenu" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Status</a>
+      <div class="dropdown-menu" aria-labelledby="statusMenu">
+        <a class="dropdown-item" href="/">All</a>
+        
+          <a class="dropdown-item" href="/?status=NEW">New</a>
+        
+          <a class="dropdown-item" href="/?status=ASSIGNED">Assigned</a>
+        
+          <a class="dropdown-item" href="/?status=IN_PROGRESS">In progress</a>
+        
+          <a class="dropdown-item" href="/?status=RESOLVED">Resolved</a>
+        
+          <a class="dropdown-item" href="/?status=CLOSED">Closed</a>
+        
+      </div>
+    </li>
+    <!-- (Removed inline status button fallback to avoid layout conflicts; dropdown below is primary) -->
+  </ul>
+  <!-- Rely on Bootstrap's dropdown CSS/behavior; custom styles removed to avoid conflicts -->
+  <form class="form-inline ml-auto" action="/search/" method="get">
+    <input class="form-control" name="q" value="" placeholder="Search tickets">
+    <button class="btn btn-outline-primary ml-1">Search</button>
+  </form>
+  <ul class="navbar-nav ml-2">
+    
+      <li class="nav-item"><a class="nav-link" href="/accounts/login/?next=/accounts/login/">Login</a></li>
+    
+  </ul>
+  </div>
+</nav>
+<div class="container mt-3">
+  
+  
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-3">Login</h2>
+    <form method="post">
+      <input type="hidden" name="csrfmiddlewaretoken" value="sNRlOEYrxfvcu0waVwsXIa5MjdA1OCa73y9ghMu9Clj90nlaMLpgnZTBUAGNasUH">
+      <p>
+    <label for="id_username">Username:</label>
+    <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username">
+    
+    
+  </p>
+
+  
+  <p>
+    <label for="id_password">Password:</label>
+    <input type="password" name="password" autocomplete="current-password" required id="id_password">
+    
+    
+      
+    
+  </p>
+      <input type="hidden" name="next" value="/">
+      <button class="btn btn-primary">Login</button>
+    </form>
+  </div>
+</div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Fallback: simple vanilla JS toggle for dropdowns so Status works
+  // even if Bootstrap JS or jQuery are unavailable or blocked.
+  (function(){
+    try{
+      document.addEventListener('click', function(ev){
+        var toggle = ev.target.closest && ev.target.closest('.dropdown-toggle');
+        if(toggle){
+          ev.preventDefault();
+          var parent = toggle.parentElement;
+          var menu = parent.querySelector('.dropdown-menu');
+          var isOpen = parent.classList.contains('show');
+          // close any other open dropdowns
+          document.querySelectorAll('.navbar .dropdown.show').forEach(function(d){
+            if(d !== parent){ d.classList.remove('show'); var m = d.querySelector('.dropdown-menu'); if(m) m.classList.remove('show'); }
+          });
+          if(!isOpen){ parent.classList.add('show'); if(menu) menu.classList.add('show'); }
+          else { parent.classList.remove('show'); if(menu) menu.classList.remove('show'); }
+        } else {
+          // clicked outside a toggle: close any open dropdowns
+          if(!ev.target.closest || !ev.target.closest('.dropdown')){
+            document.querySelectorAll('.navbar .dropdown.show').forEach(function(d){ d.classList.remove('show'); var m = d.querySelector('.dropdown-menu'); if(m) m.classList.remove('show'); });
+          }
+        }
+      }, false);
+    }catch(e){ console.error('vanilla dropdown fallback error', e); }
+  })();
+</script>
+<script>
+  // Debugging: log click targets to help diagnose broken buttons
+  (function(){
+    document.addEventListener('click', function(ev){
+      try{
+        var t = ev.target;
+        var tag = t.tagName;
+        var cls = t.className || '';
+        var closest = (t.closest && t.closest('a,button')) ? t.closest('a,button') : null;
+        console.log('DEBUG_CLICK:', {tag: tag, class: cls, closest: closest, defaultPrevented: ev.defaultPrevented});
+      }catch(e){console.error('click-logger error', e)}
+    }, true);
+  })();
+</script>
+</body>
+</html>
+
