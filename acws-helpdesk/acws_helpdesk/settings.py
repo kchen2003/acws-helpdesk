@@ -72,3 +72,17 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+# === TEMPORARY CODE TO CREATE ADMIN USER ON RENDER ===
+from django.db.models.signals import post_migrate
+from django.contrib.auth import get_user_model
+
+def create_initial_superuser(sender, **kwargs):
+    User = get_user_model()
+    # Replace 'admin' and 'adminpassword123' with whatever you want
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'password')
+        print("Superuser 'admin' created successfully!")
+
+# This tells Django to run the function right after migrating the database
+post_migrate.connect(create_initial_superuser)
