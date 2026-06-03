@@ -14,10 +14,14 @@ class Command(BaseCommand):
         # 1. POPULATE USERS & TEAM MEMBERS
         # ==========================================
         demo_users = [
-            ("alice", "Alice", "Anderson", "alice@example.com"),
-            ("bob", "Bob", "Brown", "bob@example.com"),
-            ("carol", "Carol", "Clark", "carol@example.com"),
-        ]
+            ("alice.anderson", "Alice", "Anderson", "alice@example.com"),
+            ("bob.brown", "Bob", "Brown", "bob@example.com"),
+            ("carol.clark", "Carol", "Clark", "carol@example.com"),
+            ("david.chen", "David", "Chen", "david@example.com"),
+            ("clayton.miller", "Clayton", "Miller", "clayton@example.com"),
+            ("audrey.barry", "Audrey", "Barry", "audrey@example.com"),
+            ("kevin.chen", "Kevin", "Chen", "kevin@example.com"),
+          ]
 
         for username, first, last, email in demo_users:
             u = User.objects.filter(username=username).first()
@@ -27,7 +31,7 @@ class Command(BaseCommand):
                     email=email,
                     first_name=first,
                     last_name=last,
-                    password="DemoPass123!",
+                    password="Welcome1!",
                 )
                 self.stdout.write(self.style.SUCCESS(f"CREATED user {u.username}"))
             else:
@@ -37,8 +41,8 @@ class Command(BaseCommand):
             if not tm:
                 tm = TeamMember.objects.create(
                     user=u,
-                    phone=("555-0100" if username == "alice" else "555-0101" if username == "bob" else "555-0102"),
-                    is_manager=(username == "carol"),
+                    phone=("555-0100" if username == "alice.anderson" else "555-0101" if username == "bob.brown" else "555-0102"),
+                    is_manager=(username == "carol.clark"),
                 )
                 self.stdout.write(self.style.SUCCESS(f"CREATED TeamMember for {u.username} manager={tm.is_manager}"))
             else:
@@ -50,9 +54,13 @@ class Command(BaseCommand):
         self.stdout.write("\nPopulating demo tickets...")
         
         demo_tickets = [
-            ("Printer offline", "Printer on 3rd floor not responding.", "Eve", "eve@example.com", "alice", Ticket.STATUS_ASSIGNED),
-            ("Email bounce", "External emails bouncing for multiple recipients.", "Frank", "frank@example.com", "bob", Ticket.STATUS_IN_PROGRESS),
+            ("Printer offline", "Printer on 3rd floor not responding.", "Eve", "eve@example.com", "alice.anderson", Ticket.STATUS_ASSIGNED),
+            ("Email bounce", "External emails bouncing for multiple recipients.", "Frank", "frank@example.com", "bob.brown", Ticket.STATUS_IN_PROGRESS),
             ("Laptop battery issue", "Battery not charging; adapter OK.", "Grace", "grace@example.com", "carol", Ticket.STATUS_ASSIGNED),
+            ("Email bounce", "External emails bouncing for multiple recipients.", "Frank", "frank@example.com", "bob.brown", Ticket.STATUS_IN_PROGRESS),
+            ("Password not working", "Working yesterday", "Dave", "dave@example.com", "kevin.chen", Ticket.STATUS_ASSIGNED),
+            ("Missing Org field", "In item details", "Amy", "amy@example.com", "clayton.miller", Ticket.STATUS_NEW),
+            ("Missing network cable", "Can't not be found", "Lily", "lily@example.com", "audrey.barry", Ticket.STATUS_RESOLVED),
         ]
 
         tickets_created_count = 0

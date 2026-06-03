@@ -82,7 +82,7 @@ def create_initial_superuser(sender, **kwargs):
     User = get_user_model()
     # Replace 'admin' and 'adminpassword123' with whatever you want
     if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'password')
+        User.objects.create_superuser('admin', 'admin@example.com', 'Welcome1!')
         print("Superuser 'admin' created successfully!")
 
 # This tells Django to run the function right after migrating the database
