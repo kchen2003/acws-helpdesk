@@ -23,9 +23,16 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center">
-  <div class="" style="width:360px;">
-    <form method="post" class="text-center border p-4 rounded bg-light">
+<div style="position:relative;min-height:60vh;">
+  {% comment %} Use a tiled background so the watermark fills the entire page {% endcomment %}
+  {% if acws_logo_data %}
+    <div class="page-watermark" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url('{{ acws_logo_data }}');background-repeat:repeat;background-position:center;background-size:200px;opacity:0.06;filter:grayscale(100%);"></div>
+  {% else %}
+    <div class="page-watermark" aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url('{% static 'helpdesk/acws_logo.svg' %}');background-repeat:repeat;background-position:center;background-size:200px;opacity:0.06;filter:grayscale(100%);"></div>
+  {% endif %}
+  <div class="d-flex justify-content-center" style="position:relative;z-index:1;">
+    <div class="" style="width:360px;">
+      <form method="post" class="text-center border p-4 rounded bg-light">
       {% csrf_token %}
       <div class="form-group">
         {{ form.username.label_tag }}
@@ -43,7 +50,8 @@
       </div>
       <input type="hidden" name="next" value="{{ next }}">
       <div class="mt-3"><button class="btn btn-primary btn-block">Login</button></div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock %}

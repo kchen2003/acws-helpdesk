@@ -73,6 +73,35 @@
 
     /* Ensure links remain readable */
     body.dark-mode a { color: #8ab4ff; }
+    /* Make light backgrounds dark in dark-mode so labels remain visible */
+    body.dark-mode .bg-light {
+      background-color: #16181a !important;
+      color: #e6eef3 !important;
+      border-color: #2f3336 !important;
+    }
+    /* Ensure form labels and small text are visible in dark mode */
+    body.dark-mode label,
+    body.dark-mode .form-group label,
+    body.dark-mode .form-text {
+      color: #e6eef3 !important;
+    }
+    /* Dropdowns (navbar status menu) should match dark theme */
+    body.dark-mode .dropdown-menu {
+      background-color: #16181a; /* dark panel */
+      color: #e6eef3; /* light text */
+      border: 1px solid #2f3336;
+    }
+    body.dark-mode .dropdown-item {
+      color: #e6eef3;
+    }
+    body.dark-mode .dropdown-item:hover,
+    body.dark-mode .dropdown-item:focus {
+      background-color: #24303a;
+      color: #ffffff;
+    }
+    body.dark-mode .dropdown-toggle {
+      color: #e6eef3;
+    }
   </style>
 </head>
 <body>
@@ -109,15 +138,13 @@
       </li>
     {% else %}
       {% url 'login' as login_url %}
-      {% if request.path != login_url %}
-        <li class="nav-item"><a class="nav-link" href="{{ login_url }}?next={{ request.path }}" title="Login" aria-label="Login">Login</a></li>
-      {% else %}
-        <li class="nav-item">
-          <button id="dark-mode-toggle" class="btn btn-link nav-link btn-darkmode" title="Toggle dark mode" aria-label="Toggle dark mode">
-            <!-- default icon filled by JS -->
-          </button>
-        </li>
-      {% endif %}
+      <!-- Always show dark mode toggle for unauthenticated users so it's available on the login page -->
+      <li class="nav-item">
+        <button id="dark-mode-toggle" class="btn btn-link nav-link btn-darkmode" title="Toggle dark mode" aria-label="Toggle dark mode">
+          <!-- default icon filled by JS -->
+        </button>
+      </li>
+      {% comment %} login link removed by request (use direct URL to access login) {% endcomment %}
     {% endif %}
   </ul>
   </div>
